@@ -16,23 +16,8 @@ import evaluation.loader as dl
 from builtins import Exception
 import pickle
 import dill
-from telegram.ext.updater import Updater
-from telegram.ext.commandhandler import CommandHandler
-import telegram
 import random
 import gc
-
-# telegram notificaitons
-CHAT_ID = -1
-BOT_TOKEN = 'API_TOKEN'
-
-NOTIFY = False
-TELEGRAM_STATUS = False
-if TELEGRAM_STATUS:
-    updater = Updater(BOT_TOKEN)  # , use_context=True
-    updater.start_polling()
-if NOTIFY:
-    bot = telegram.Bot(token=BOT_TOKEN)
 
 
 def main(conf, out=None):
@@ -45,44 +30,12 @@ def main(conf, out=None):
             Output folder path for endless run listening for new configurations.
     '''
     print('Checking {}'.format(conf))
-    # if TELEGRAM_STATUS:
-    #     updater.dispatcher.add_handler( CommandHandler('status', status) )
 
     file = Path(conf)
-    # if file.is_file():
-    #
-    #     print('Loading file')
-    #     send_message('processing config ' + conf)
-    #     stream = open(str(file))
-    #     c = yaml.load(stream)
-    #     stream.close()
-    #
-    #     try:
-    #
-    #         run_file(c)
-    #         send_message('finished config ' + conf)
-    #
-    #     except (KeyboardInterrupt, SystemExit):
-    #
-    #         send_message('manually aborted config ' + list[0])
-    #         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.cancled')
-    #
-    #         raise
-    #
-    #     except Exception:
-    #         print('error for config ', list[0])
-    #         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.error')
-    #         send_exception('error for config ' + list[0])
-    #         traceback.print_exc()
-    #
-    #     exit()
-
     if file.is_dir():
 
         if out is not None:
             ensure_dir(out + '/out.txt')
-
-            # send_message('waiting for configuration files in ' + conf)
 
             while True:
 
@@ -93,7 +46,6 @@ def main(conf, out=None):
                     try:
                         file = Path(list[0])
                         print('processing config', list[0])
-                        # send_message('processing config ' + list[0])
 
                         stream = open(str(file))
                         c = yaml.load(stream)
@@ -102,13 +54,11 @@ def main(conf, out=None):
                         run_file(c)
 
                         print('finished config', list[0])
-                        send_message('finished config ' + list[0])
 
                         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.done')
 
                     except (KeyboardInterrupt, SystemExit):
 
-                        send_message('manually aborted config ' + list[0])
                         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.cancled')
 
                         raise
@@ -116,7 +66,6 @@ def main(conf, out=None):
                     except Exception:
                         print('error for config ', list[0])
                         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.error')
-                        send_exception('error for config ' + list[0])
                         traceback.print_exc()
 
                 time.sleep(5)
@@ -130,7 +79,6 @@ def main(conf, out=None):
                 try:
 
                     print('processing config', conf)
-                    send_message('processing config ' + conf)
 
                     stream = open(str(Path(conf)))
                     c = yaml.load(stream)
@@ -139,15 +87,12 @@ def main(conf, out=None):
                     run_file(c)
 
                     print('finished config', conf)
-                    send_message('finished config ' + conf)
 
                 except (KeyboardInterrupt, SystemExit):
-                    send_message('manually aborted config ' + conf)
                     raise
 
                 except Exception:
                     print('error for config ', conf)
-                    send_exception('error for config' + conf)
                     traceback.print_exc()
 
             exit()
@@ -284,8 +229,6 @@ def run_opt_single(conf, iteration, globals):
             print('found new best configuration')
             print(k)
             print('improvement from {} to {}'.format(globals[aclass]['best'], current_value))
-            send_message('improvement for {} from {} to {} in test {}'.format(k, globals[aclass]['best'], current_value,
-                                                                              iteration))
             globals[aclass]['best'] = current_value
             globals[aclass]['key'] = k
 
@@ -358,8 +301,7 @@ def run_bayopt_single(conf, algorithms, iteration, globals):
             print('found new best configuration')
             print(k)
             print('improvement from {} to {}'.format(globals[aclass]['best'], current_value))
-            send_message('improvement for {} from {} to {} in test {}'.format(k, globals[aclass]['best'], current_value,
-                                                                              iteration))
+
             globals[aclass]['best'] = current_value
             globals[aclass]['key'] = k
 
@@ -882,35 +824,6 @@ def ensure_dir(file_path):
     directory = os.path.dirname(file_path)
     if not os.path.exists(directory):
         os.makedirs(directory)
-
-
-def send_message(text):
-    if NOTIFY:
-        body = 'News from ' + socket.gethostname() + ': \n'
-        body += text
-        bot.sendMessage(chat_id=CHAT_ID, text=body)
-
-
-def send_exception(text):
-    if NOTIFY:
-        send_message(text)
-        tmpfile = open('exception.txt', 'w')
-        traceback.print_exc(file=tmpfile)
-        tmpfile.close()
-        send_file('exception.txt')
-
-
-def send_file(file):
-    if NOTIFY:
-        file = open(file, 'rb')
-        bot.send_document(chat_id=CHAT_ID, document=file)
-        file.close()
-
-
-def status(bot, update):
-    if NOTIFY:
-        update.message.reply_text(
-            'Running on {}'.format(socket.gethostname()))
 
 
 if __name__ == '__main__':
