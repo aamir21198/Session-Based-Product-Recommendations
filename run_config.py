@@ -45,44 +45,44 @@ def main(conf, out=None):
             Output folder path for endless run listening for new configurations.
     '''
     print('Checking {}'.format(conf))
-    if TELEGRAM_STATUS:
-        updater.dispatcher.add_handler( CommandHandler('status', status) )
+    # if TELEGRAM_STATUS:
+    #     updater.dispatcher.add_handler( CommandHandler('status', status) )
 
     file = Path(conf)
-    if file.is_file():
-
-        print('Loading file')
-        send_message('processing config ' + conf)
-        stream = open(str(file))
-        c = yaml.load(stream)
-        stream.close()
-
-        try:
-
-            run_file(c)
-            send_message('finished config ' + conf)
-
-        except (KeyboardInterrupt, SystemExit):
-
-            send_message('manually aborted config ' + list[0])
-            os.rename(list[0], out + '/' + file.name + str(time.time()) + '.cancled')
-
-            raise
-
-        except Exception:
-            print('error for config ', list[0])
-            os.rename(list[0], out + '/' + file.name + str(time.time()) + '.error')
-            send_exception('error for config ' + list[0])
-            traceback.print_exc()
-
-        exit()
+    # if file.is_file():
+    #
+    #     print('Loading file')
+    #     send_message('processing config ' + conf)
+    #     stream = open(str(file))
+    #     c = yaml.load(stream)
+    #     stream.close()
+    #
+    #     try:
+    #
+    #         run_file(c)
+    #         send_message('finished config ' + conf)
+    #
+    #     except (KeyboardInterrupt, SystemExit):
+    #
+    #         send_message('manually aborted config ' + list[0])
+    #         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.cancled')
+    #
+    #         raise
+    #
+    #     except Exception:
+    #         print('error for config ', list[0])
+    #         os.rename(list[0], out + '/' + file.name + str(time.time()) + '.error')
+    #         send_exception('error for config ' + list[0])
+    #         traceback.print_exc()
+    #
+    #     exit()
 
     if file.is_dir():
 
         if out is not None:
             ensure_dir(out + '/out.txt')
 
-            send_message('waiting for configuration files in ' + conf)
+            # send_message('waiting for configuration files in ' + conf)
 
             while True:
 
@@ -93,7 +93,7 @@ def main(conf, out=None):
                     try:
                         file = Path(list[0])
                         print('processing config', list[0])
-                        send_message('processing config ' + list[0])
+                        # send_message('processing config ' + list[0])
 
                         stream = open(str(file))
                         c = yaml.load(stream)
@@ -189,30 +189,30 @@ def run_single(conf, slice=None):
 
     buys = pd.DataFrame()
 
-    if 'type' in conf['data']:
-        if conf['data']['type'] == 'hdf':  # hdf5 file
-            if 'opts' in conf['data']:
-                # ( path, file, sessions_train=None, sessions_test=None, slice_num=None, train_eval=False )
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
-                                                       **conf['data']['opts'])
-            else:
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
-        # elif conf['data']['type'] == 'csv': # csv file
-    else:  # csv file (default)
-        if 'opts' in conf['data']:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
-                                               **conf['data']['opts'])
-        else:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
-        if 'buys' in conf['data'] and 'file_buys' in conf['data']:
-            buys = dl.load_buys(conf['data']['folder'], conf['data']['file_buys'])  # load buy actions in addition
+    # if 'type' in conf['data']:
+    #     if conf['data']['type'] == 'hdf':  # hdf5 file
+    #         if 'opts' in conf['data']:
+    #             # ( path, file, sessions_train=None, sessions_test=None, slice_num=None, train_eval=False )
+    #             train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
+    #                                                    **conf['data']['opts'])
+    #         else:
+    #             train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
+    #     # elif conf['data']['type'] == 'csv': # csv file
+    # else:  # csv file (default)
+    # if 'opts' in conf['data']:
+    #     train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
+    #                                        **conf['data']['opts'])
+    # else:
+    train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
+    # if 'buys' in conf['data'] and 'file_buys' in conf['data']:
+    #     buys = dl.load_buys(conf['data']['folder'], conf['data']['file_buys'])  # load buy actions in addition
     # else:
     #     raise RuntimeError('Unknown data type: {}'.format(conf['data']['type']))
 
     for m in metrics:
         m.init(train)
-        if hasattr(m, 'set_buys'):
-            m.set_buys(buys, test)
+        # if hasattr(m, 'set_buys'):
+        #     m.set_buys(buys, test)
 
     results = {}
 
@@ -392,7 +392,7 @@ def run_window(conf):
 
     for i in slices:
         print('start run for slice ', str(i))
-        send_message('start run for slice ' + str(i))
+        # send_message('start run for slice ' + str(i))
         run_single(conf, slice=i)
 
 
