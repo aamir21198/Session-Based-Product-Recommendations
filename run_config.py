@@ -109,10 +109,6 @@ def run_file(conf):
         run_single(conf)
     elif conf['type'] == 'window':
         run_window(conf)
-    elif conf['type'] == 'opt':
-        run_opt(conf)
-    elif conf['type'] == 'bayopt':
-        run_bayopt(conf)
     else:
         print(conf['type'] + ' not supported')
 
@@ -132,32 +128,10 @@ def run_single(conf, slice=None):
     metrics = create_metric_list(conf['metrics'])
     evaluation = load_evaluation(conf['evaluation'])
 
-    buys = pd.DataFrame()
-
-    # if 'type' in conf['data']:
-    #     if conf['data']['type'] == 'hdf':  # hdf5 file
-    #         if 'opts' in conf['data']:
-    #             # ( path, file, sessions_train=None, sessions_test=None, slice_num=None, train_eval=False )
-    #             train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
-    #                                                    **conf['data']['opts'])
-    #         else:
-    #             train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
-    #     # elif conf['data']['type'] == 'csv': # csv file
-    # else:  # csv file (default)
-    # if 'opts' in conf['data']:
-    #     train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice,
-    #                                        **conf['data']['opts'])
-    # else:
     train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], slice_num=slice)
-    # if 'buys' in conf['data'] and 'file_buys' in conf['data']:
-    #     buys = dl.load_buys(conf['data']['folder'], conf['data']['file_buys'])  # load buy actions in addition
-    # else:
-    #     raise RuntimeError('Unknown data type: {}'.format(conf['data']['type']))
 
     for m in metrics:
         m.init(train)
-        # if hasattr(m, 'set_buys'):
-        #     m.set_buys(buys, test)
 
     results = {}
 
@@ -166,154 +140,6 @@ def run_single(conf, slice=None):
 
     print_results(results)
     write_results_csv(results, conf, iteration=slice)
-
-
-def run_opt_single(conf, iteration, globals):
-    '''
-    Evaluate the algorithms for a single split
-        --------
-        conf: dict
-            Configuration dictionary
-        slice: int
-            Optional index for the window slice
-    '''
-    print('run test opt single')
-
-    algorithms = create_algorithms_dict(conf['algorithms'])
-    for k, a in algorithms.items():
-        aclass = type(a)
-        if not aclass in globals:
-            globals[aclass] = {'key': '', 'best': -1}
-
-    metrics = create_metric_list(conf['metrics'])
-    metric_opt = create_metric(conf['optimize'])
-    metrics = metric_opt + metrics
-    evaluation = load_evaluation(conf['evaluation'])
-
-    train_eval = True
-    if 'train_eval' in conf['data']:
-        train_eval = conf['data']['train_eval']
-
-    if 'type' in conf['data']:
-        if conf['data']['type'] == 'hdf':  # hdf5 file
-            if 'opts' in conf['data']:
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'],
-                                                       train_eval=train_eval,
-                                                       **conf['data'][
-                                                           'opts'])  # ( path, file, sessions_train=None, sessions_test=None, slice_num=None, train_eval=False )
-            else:
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'],
-                                                       train_eval=train_eval)
-        # elif conf['data']['type'] == 'csv': # csv file
-    else:
-        if 'opts' in conf['data']:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], train_eval=train_eval,
-                                               **conf['data']['opts'])
-        else:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], train_eval=train_eval)
-
-    for m in metrics:
-        m.init(train)
-
-    results = {}
-
-    for k, a in algorithms.items():
-        eval_algorithm(train, test, k, a, evaluation, metrics, results, conf, iteration=iteration, out=False)
-
-    write_results_csv(results, conf, iteration=iteration)
-
-    for k, a in algorithms.items():
-        aclass = type(a)
-        current_value = results[k][0][1]
-        if globals[aclass]['best'] < current_value:
-            print('found new best configuration')
-            print(k)
-            print('improvement from {} to {}'.format(globals[aclass]['best'], current_value))
-            globals[aclass]['best'] = current_value
-            globals[aclass]['key'] = k
-
-    globals['results'].append(results)
-
-    del algorithms
-    del metrics
-    del evaluation
-    del results
-    gc.collect()
-
-
-def run_bayopt_single(conf, algorithms, iteration, globals):
-    '''
-    Evaluate the algorithms for a single split
-        --------
-        conf: dict
-            Configuration dictionary
-        slice: int
-            Optional index for the window slice
-    '''
-    print('run test opt single')
-
-    for k, a in algorithms.items():
-        aclass = type(a)
-        if not aclass in globals:
-            globals[aclass] = {'key': '', 'best': -1}
-
-    metrics = create_metric_list(conf['metrics'])
-    metric_opt = create_metric(conf['optimize'])
-    metrics = metric_opt + metrics
-    evaluation = load_evaluation(conf['evaluation'])
-
-    train_eval = True
-    if 'train_eval' in conf['data']:
-        train_eval = conf['data']['train_eval']
-
-    if 'type' in conf['data']:
-        if conf['data']['type'] == 'hdf':  # hdf5 file
-            if 'opts' in conf['data']:
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'],
-                                                       train_eval=train_eval,
-                                                       **conf['data'][
-                                                           'opts'])  # ( path, file, sessions_train=None, sessions_test=None, slice_num=None, train_eval=False )
-            else:
-                train, test = dl.load_data_session_hdf(conf['data']['folder'], conf['data']['prefix'],
-                                                       train_eval=train_eval)
-        # elif conf['data']['type'] == 'csv': # csv file
-    else:
-        if 'opts' in conf['data']:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], train_eval=train_eval,
-                                               **conf['data']['opts'])
-        else:
-            train, test = dl.load_data_session(conf['data']['folder'], conf['data']['prefix'], train_eval=train_eval)
-
-    for m in metrics:
-        m.init(train)
-
-    results = {}
-
-    for k, a in algorithms.items():
-        eval_algorithm(train, test, k, a, evaluation, metrics, results, conf, iteration=iteration, out=False)
-
-    write_results_csv(results, conf, iteration=iteration)
-
-    for k, a in algorithms.items():
-        aclass = type(a)
-        current_value = results[k][0][1]
-        if globals[aclass]['best'] < current_value:
-            print('found new best configuration')
-            print(k)
-            print('improvement from {} to {}'.format(globals[aclass]['best'], current_value))
-
-            globals[aclass]['best'] = current_value
-            globals[aclass]['key'] = k
-
-        globals['current'] = current_value
-
-    globals['results'].append(results)
-
-    del algorithms
-    del metrics
-    del evaluation
-    del results
-    gc.collect()
 
 
 def run_window(conf):
@@ -336,74 +162,6 @@ def run_window(conf):
         print('start run for slice ', str(i))
         # send_message('start run for slice ' + str(i))
         run_single(conf, slice=i)
-
-
-def run_opt(conf):
-    '''
-     Perform an optmization for the algorithms
-         --------
-         conf: dict
-             Configuration dictionary
-     '''
-
-    iterations = conf['optimize']['iterations'] if 'optimize' in conf and 'iterations' in conf['optimize'] else 100
-    start = conf['optimize']['iterations_skip'] if 'optimize' in conf and 'iterations_skip' in conf['optimize'] else 0
-    print('run opt with {} iterations starting at {}'.format(iterations, start))
-
-    globals = {}
-    globals['results'] = []
-
-    for i in range(start, iterations):
-        print('start random test ', str(i))
-        run_opt_single(conf, i, globals)
-
-    global_results = {}
-    for results in globals['results']:
-        for key, value in results.items():
-            global_results[key] = value
-
-    write_results_csv(global_results, conf)
-
-
-def run_bayopt(conf):
-    '''
-     Perform a bayesian optmization for the algorithms using
-         --------
-         conf: dict
-             Configuration dictionary
-     '''
-
-    iterations = conf['optimize']['iterations'] if 'optimize' in conf and 'iterations' in conf['optimize'] else 100
-    start = conf['optimize']['iterations_skip'] if 'optimize' in conf and 'iterations_skip' in conf['optimize'] else 0
-    print('run opt with {} iterations starting at {}'.format(iterations, start))
-
-    globals = {}
-    globals['results'] = []
-
-    for entry in conf['algorithms']:
-
-        space_dict = generate_space(entry)
-
-        # generate space for algorithm
-        opt = Optimizer([values for k, values in space_dict.items()], n_initial_points=conf['optimize']['initial_points'] if 'optimize' in conf and 'initial_points' in conf['optimize'] else 10)
-
-        for i in range(start, iterations):
-            print('start bayesian test ', str(i))
-            suggested = opt.ask()
-            params = { k:v for k,v in zip( space_dict.keys(), suggested ) }
-
-            algo_instance = create_algorithm_dict( entry, params )
-
-            run_bayopt_single(conf, algo_instance, i, globals)
-            res = globals['current']
-            opt.tell(suggested, -1 * res)
-
-    global_results = {}
-    for results in globals['results']:
-        for key, value in results.items():
-            global_results[key] = value
-
-    write_results_csv(global_results, conf)
 
 
 def eval_algorithm(train, test, key, algorithm, eval, metrics, results, conf, slice=None, iteration=None, out=True):
