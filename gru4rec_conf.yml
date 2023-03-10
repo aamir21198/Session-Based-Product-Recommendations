@@ -1,0 +1,29 @@
+type: window # single|window|opt
+key: baselines_and_models #added to the csv names
+evaluation: evaluation # evaluation_user_based
+data:
+  name: retailrocket #added in the end of the csv names
+  folder: data/retailrocket/slices/
+  prefix: events
+  slices: 5 # only window
+
+
+results:
+  folder: results/retailrocket/session-aware/gru4rec/controlled_mmt_0_1/
+
+metrics:
+- class: accuracy_multiple.MAP
+  length: [10,20]
+- class: accuracy.HitRate
+  length: [10,20]
+- class: accuracy.MRR
+  length: [10,20]
+- class: coverage.Coverage
+  length: [10,20]
+- class: popularity.Popularity
+  length: [10,20]
+
+algorithms:
+- class: gru4rec.gru4rec.GRU4Rec
+  params: {loss: 'top1-max', final_act: 'elu-0.5', dropout_p_hidden: 0.2, momentum: 0.1, learning_rate: 0.06, constrained_embedding: True}
+  key: gru4rec
