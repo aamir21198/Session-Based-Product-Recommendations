@@ -76,34 +76,3 @@ We test our model on multiple metrics
 | Hit Rate   | 0.5057 | 0.5726 |
 | Coverage   | 0.6242 | 0.7939 |
 | Popularity | 0.0353 | 0.0320 |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
