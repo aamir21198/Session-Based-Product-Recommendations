@@ -70,17 +70,17 @@ python run_config.py conf/in conf/out
 ```
 
 ## Approach
-* The 5 data slices allowed us to ensure multiple measurements of evaluation metrics with different test sets.
-* The input of the network is formed by a single product, which is one-hot encoded in a vector representing the entire product space, and the output is a vector of similar shape that should give a ranking distribution for the subsequent product.
+*  We split the data into 5 slices of equal size in days (25 days for Training, subsequent 2 days for Testing). The 5 data slices allowed us to ensure multiple measurements of evaluation metrics with different test sets.
+* We implemented session-parallel mini-batch scheme within the Gru4Rec network as explained in the reference paper by Ludewig - 'Evaluation of session-based recommendation algorithms'. The input of the network is formed by a single product, which is one-hot encoded in a vector representing the entire product space, and the output is a vector of similar shape that should give a ranking distribution for the subsequent product.
 * While training and predicting with the help of this network architecture, the products of a session are fed into the network in the correct order and the hidden state of the GRUs is reset after a session ends.
 
-## Final Model Parameter Tuning
+## HyperParameter Tuning
 
 We tried various combinations of hyperparameter values and obtained optimal results using the following hyperparameters -
 
 | Hyperparameter        | Value    |
 |-----------------------|----------|
-| Loss Function         | Top1-max |
+| Loss Function         | TOP1-max |
 | Activation Function   | Elu-0.5  |
 | Dropout Rate          | 0.2      |
 | Momentum              | 0.1      |
