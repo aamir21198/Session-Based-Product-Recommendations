@@ -51,12 +51,14 @@ conda env create -f environment.yml
 
 ## Run instructions
 1. Preprocess data for RetailRocket
-   a. Discard products with less than 6 occurrences
-   b. Discard sessions with less than 3 products
-   c. Divide user-activity into sessions based on a 30-minute threshold of inactivity
-   d. Split data into 5 slices of training and testing sets for each 5-month period. 
-   e. For each slice, Train data has 25 days and Test data has 2 days 
-   f. Use Session-parallel mini-batches to capture how sessions evolves
+   1. Discard products with less than 6 occurrences
+   2. Discard sessions with less than 3 products
+   3. Divide user-activity into sessions based on a 30-minute threshold of inactivity
+   4. Split data into 5 slices of training and testing sets for each 5-month period. 
+   5. For each slice:
+      1. Train data - 25 days
+      2. Test data - 2 days 
+   6. Use Session-parallel mini-batches to capture how sessions evolves
 
 ```sh
 python run_preprocessing.py conf/preprocess/session_based/window/retailrocket.yml
@@ -96,9 +98,9 @@ We test our model on multiple metrics
 | Coverage@20   | 0.794     | 0.602           |
 | Popularity@20 | 0.032     | 0.060           |
 
-• We reported four metrics computed from the top 20 recommended products.
-• We reported the average of the metrics for all 5 slices.
-• MRR (Mean Reciprocal Rank): Evaluates to what extent can the immediate next product in a session be predicted.
+* We reported four metrics computed from the top 20 recommended products.
+* We reported the average of the metrics for all 5 slices.
+* MRR (Mean Reciprocal Rank) evaluates to what extent can the immediate next product in a session be predicted.
 
 ## Conclusion
 * We found a combination of optimal hyperparameter values that maximized our model's performance thereby improving the results found in Ludewig and Jannach’s research paper 
