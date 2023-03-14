@@ -85,7 +85,7 @@ We tried various combinations of hyperparameter values and obtained optimal resu
 
 ## Results
 
-We test our model on multiple metrics. Below, we compare our Gru4Rec model results with the benchmark model from Ludewig’s research paper [1]
+We test our model on multiple metrics. Below, we compare our Gru4Rec model results with the benchmark Gru4Rec model from Ludewig’s research paper [1].
 
 | Metrics       | Our model | Benchmark Model |
 |---------------|-----------|-----------------|
