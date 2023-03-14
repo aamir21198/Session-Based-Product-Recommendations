@@ -17,11 +17,7 @@ Team Members
 ## Introduction
 **Neiman Marcus** (NM) is a Fashion Retailer selling luxury apparels & accessories via their proprietary website. Their website has many unregistered visitors, and they wish to improve personalized recommendations for these users. Recommending the right product helps cultivate brand loyalty, stimulates more site visits, and encourages more interactions with the brand. We implemented session-based recommenders that generate personalized recommendations based on in-session clickstream for unknown visitors. We implemented session-based recommender that relies heavily on the user’s most recent interactions rather than on their historical preferences. We aim to research and use the best possible session-based approaches to improve product recommendations. 
 
-We referred to the following papers for this project -
-
-1. Ludewig, M., & Jannach, D. (2018c). Evaluation of session-based recommendation algorithms. User Modeling and User-Adapted Interaction, 28(4-5), 331–390. https://doi.org/10.1007/s11257-018-9209-6
-2. Hidasi, B., Karatzoglou, A., Baltrunas, L., & Tikk, D. (2016). SESSION-BASED RECOMMENDATIONS WITH RECURRENT NEURAL NETWORKS. https://arxiv.org/pdf/1511.06939.pdf
-3. Hidasi, B., & Karatzoglou, A. (2018). Recurrent Neural Networks with Top-k Gains for Session-based Recommendations. Proceedings of the 27th ACM International Conference on Information and Knowledge Management. https://doi.org/10.1145/3269206.3271761
+For building our model, we referenced the research paper ‘Evaluation of Session-based Recommendation Algorithms’ by Malte Ludewig and Dietmar Jannach [1]. We also referenced other papers [2], [3].
 
 We chose GRU4REC, a complex Recurrent Neural Network based technique specifically designed for session-based recommendation scenarios. Our experiments revealed that GRU4REC performed suitably well for product recommendation. 
 
@@ -71,7 +67,7 @@ python run_config.py conf/in conf/out
 
 ## Approach
 *  We split the data into 5 slices of equal size in days (25 days for Training, subsequent 2 days for Testing). The 5 data slices allowed us to ensure multiple measurements of evaluation metrics with different test sets.
-* We implemented session-parallel mini-batch scheme within the Gru4Rec network as explained in the reference paper by Ludewig - 'Evaluation of session-based recommendation algorithms'. The input of the network is formed by a single product, which is one-hot encoded in a vector representing the entire product space, and the output is a vector of similar shape that should give a ranking distribution for the subsequent product.
+* We implemented session-parallel mini-batch scheme within the Gru4Rec network as explained in the reference paper by Ludewig - 'Evaluation of session-based recommendation algorithms' [1]. The input of the network is formed by a single product, which is one-hot encoded in a vector representing the entire product space, and the output is a vector of similar shape that should give a ranking distribution for the subsequent product.
 * While training and predicting with the help of this network architecture, the products of a session are fed into the network in the correct order and the hidden state of the GRUs is reset after a session ends.
 
 ## HyperParameter Tuning
@@ -89,7 +85,7 @@ We tried various combinations of hyperparameter values and obtained optimal resu
 
 ## Results
 
-We test our model on multiple metrics 
+We test our model on multiple metrics. Below, we compare our Gru4Rec model results with the benchmark model from Ludewig’s research paper [1]
 
 | Metrics       | Our model | Benchmark Model |
 |---------------|-----------|-----------------|
@@ -105,3 +101,8 @@ We test our model on multiple metrics
 ## Conclusion
 * We found a combination of optimal hyperparameter values that maximized our model's performance thereby improving the results found in Ludewig and Jannach’s research paper 
 * This model can be utilized by Neiman Marcus along with their existing recommender models to improve personalization and product recommendations for unregistered users.
+
+## References
+[1] Ludewig, M., & Jannach, D. (2018c). Evaluation of session-based recommendation algorithms. User Modeling and User-Adapted Interaction, 28(4-5), 331–390. https://doi.org/10.1007/s11257-018-9209-6
+[2] Hidasi, B., Karatzoglou, A., Baltrunas, L., & Tikk, D. (2016). SESSION-BASED RECOMMENDATIONS WITH RECURRENT NEURAL NETWORKS. https://arxiv.org/pdf/1511.06939.pdf
+[3] Hidasi, B., & Karatzoglou, A. (2018). Recurrent Neural Networks with Top-k Gains for Session-based Recommendations. Proceedings of the 27th ACM International Conference on Information and Knowledge Management. https://doi.org/10.1145/3269206.3271761
