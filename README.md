@@ -103,8 +103,8 @@ We test our model on multiple metrics. Below, we compare our Gru4Rec model resul
 * This model can be utilized by Neiman Marcus along with their existing recommender models to improve personalization and product recommendations for unregistered users.
 
 ## References
-[1] Ludewig, M., & Jannach, D. (2018c). Evaluation of session-based recommendation algorithms. User Modeling and User-Adapted Interaction, 28(4-5), 331–390. https://doi.org/10.1007/s11257-018-9209-6
+* [1] Ludewig, M., & Jannach, D. (2018c). Evaluation of session-based recommendation algorithms. User Modeling and User-Adapted Interaction, 28(4-5), 331–390. https://doi.org/10.1007/s11257-018-9209-6
 
-[2] Hidasi, B., Karatzoglou, A., Baltrunas, L., & Tikk, D. (2016). SESSION-BASED RECOMMENDATIONS WITH RECURRENT NEURAL NETWORKS. https://arxiv.org/pdf/1511.06939.pdf
+* [2] Hidasi, B., Karatzoglou, A., Baltrunas, L., & Tikk, D. (2016). SESSION-BASED RECOMMENDATIONS WITH RECURRENT NEURAL NETWORKS. https://arxiv.org/pdf/1511.06939.pdf
 
-[3] Hidasi, B., & Karatzoglou, A. (2018). Recurrent Neural Networks with Top-k Gains for Session-based Recommendations. Proceedings of the 27th ACM International Conference on Information and Knowledge Management. https://doi.org/10.1145/3269206.3271761
+* [3] Hidasi, B., & Karatzoglou, A. (2018). Recurrent Neural Networks with Top-k Gains for Session-based Recommendations. Proceedings of the 27th ACM International Conference on Information and Knowledge Management. https://doi.org/10.1145/3269206.3271761
