@@ -33,9 +33,9 @@ The fields in this dataset include
 * Event (View / AddToCart)
 
 ## Model Selection - GRU4REC
-GRU4REC is an RNN system that predicts the next event item based on the current session state. The session state can be represented by an actual event item or a weighted sum of seen events. The system uses gradient recurrent unit (GRU) layers at its core, and feedforward layers at the end to provide output. To order sessions, it uses session-parallel mini-batches, where the first event of the first several sessions forms the input of the first mini-batch, and so on. The system samples items based on their popularity, and negative samples come from other training mini-batch examples. One of the choices of the loss functions is TOP1, which is a ranking loss that approximates the relative rank of an item with a regularization term added to ensure that negative sample scores are close to zero.
+Gru4Rec is a Recurrent Neural Network that predicts the next viewed product based on the current session. The session can be represented by an actual product or a weighted sum of seen events. While the usage of RNNs for session-based, or more generally, sequential prediction problems is a natural choice, this particular network architecture, the choice of the loss functions, and the use of session-parallel mini-batches to speed up the training phase are key innovative elements of Gru4Rec approach.
 
-While the usage of RNNs for session-based, or more generally, sequential prediction problems is a natural choice, this particular network architecture, the choice of the loss functions, and the use of session-parallel mini-batches to speed up the training phase are key innovative elements of GRU4REC approach.
+The system uses gradient recurrent unit (GRU) layers at its core, and feedforward layers at the end to provide output. To order sessions, it uses session-parallel mini-batches, where the first event of the first several sessions forms the input of the first mini-batch, and so on. The system samples items based on their popularity, and negative samples come from other training mini-batch examples. One of the choices of the loss functions is TOP1, which is a ranking loss that approximates the relative rank of an item with a regularization term added to ensure that negative sample scores are close to zero.
 
 ## Environment Setup
 
