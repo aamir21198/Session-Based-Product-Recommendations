@@ -15,9 +15,7 @@ Team Members
 
 
 ## Introduction
-Neiman Marcus (NM) owns a website where one can shop luxury brand apparels, accessories and more. NM wishes to improve user personalization through product recommendations. Their website has many unregistered visitors, and therefore we implemented session-based recommenders that generate personalized recommendations based on in-session clickstream for unknown visitors. Session-based algorithms rely heavily on the user’s most recent interactions, rather than on their historical preferences. We aim to research and use the best possible session-based approaches to improve product recommendations. We chose GRU4REC, a Recurrent Neural Network based technique specifically designed for session-based recommendation scenarios. 
-
-We train and test GRU4REC on RetailRocket dataset instead of NM data as it was not possible for NM to share their proprietary dataset. NM can use this repository to test the performance of GRU4REC on their data. This model serves as the starting point for using deep learning approaches for Session-Based product recommendations. 
+**Neiman Marcus** (NM) is a Fashion Retailer selling luxury apparels & accessories via their proprietary website. Their website has many unregistered visitors, and they wish to improve personalized recommendations for these users. Recommending the right product helps cultivate brand loyalty, stimulates more site visits, and encourages more interactions with the brand. We implemented session-based recommenders that generate personalized recommendations based on in-session clickstream for unknown visitors. We implemented session-based recommender that relies heavily on the user’s most recent interactions rather than on their historical preferences. We aim to research and use the best possible session-based approaches to improve product recommendations. 
 
 We referred to the following papers for this project -
 
@@ -25,6 +23,23 @@ We referred to the following papers for this project -
 2. Hidasi, B., Karatzoglou, A., Baltrunas, L., & Tikk, D. (2016). SESSION-BASED RECOMMENDATIONS WITH RECURRENT NEURAL NETWORKS. https://arxiv.org/pdf/1511.06939.pdf
 3. Hidasi, B., & Karatzoglou, A. (2018). Recurrent Neural Networks with Top-k Gains for Session-based Recommendations. Proceedings of the 27th ACM International Conference on Information and Knowledge Management. https://doi.org/10.1145/3269206.3271761
 
+We chose GRU4REC, a complex Recurrent Neural Network based technique specifically designed for session-based recommendation scenarios. Our experiments revealed that GRU4REC performed suitably well for product recommendation. 
+
+We train and test GRU4REC on RetailRocket dataset instead of NM data as it was not possible for NM to share their proprietary dataset. NM can use this repository to test the performance of GRU4REC on their data. This model serves as the starting point for using deep learning approaches for Session-Based product recommendations.
+
+## Data
+Our [RetailRocket](https://www.kaggle.com/datasets/retailrocket/ecommerce-dataset) dataset comes from Kaggle. It has 1,048,575 rows and 234,838 products.
+
+The fields in this dataset include
+* Timestamp
+* Session ID
+* Product ID
+* Event (View / AddToCart)
+
+## Model Selection - GRU4REC
+GRU4REC is an RNN system that predicts the next event item based on the current session state. The session state can be represented by an actual event item or a weighted sum of seen events. The system uses gradient recurrent unit (GRU) layers at its core, and feedforward layers at the end to provide output. To order sessions, it uses session-parallel mini-batches, where the first event of the first several sessions forms the input of the first mini-batch, and so on. The system samples items based on their popularity, and negative samples come from other training mini-batch examples. One of the choices of the loss functions is TOP1, which is a ranking loss that approximates the relative rank of an item with a regularization term added to ensure that negative sample scores are close to zero.
+
+While the usage of RNNs for session-based, or more generally, sequential prediction problems is a natural choice, this particular network architecture, the choice of the loss functions, and the use of session-parallel mini-batches to speed up the training phase are key innovative elements of GRU4REC approach.
 
 ## Environment Setup
 
@@ -35,27 +50,31 @@ conda env create -f environment.yml
 
 
 ## Run instructions
-1. Preprocess data for Retail Rocket
-   1. Minimum item support – 5 
-   2. Minimum session length – 2 
-   3. Session threshold - 30 minutes 
-   4. Divide data into 5 slices of training and testing sets 
-   5. Train data – 25 days 
-   6. Test data – 2 days 
-   7. Use Session-parallel mini-batches to capture how sessions evolves
+1. Preprocess data for RetailRocket
+   a. Discard products with less than 6 occurrences
+   b. Discard sessions with less than 3 products
+   c. Divide user-activity into sessions based on a 30-minute threshold of inactivity
+   d. Split data into 5 slices of training and testing sets for each 5-month period. 
+   e. For each slice, Train data has 25 days and Test data has 2 days 
+   f. Use Session-parallel mini-batches to capture how sessions evolves
+
 ```sh
 python run_preprocessing.py conf/preprocess/session_based/window/retailrocket.yml
 ```
+
 2. Train a GRU4REC model
 ```sh
 python run_config.py conf/in conf/out
 ```
 
+## Approach
+* The 5 data slices allowed us to ensure multiple measurements of evaluation metrics with different test sets.
+* The input of the network is formed by a single product, which is one-hot encoded in a vector representing the entire product space, and the output is a vector of similar shape that should give a ranking distribution for the subsequent product.
+* While training and predicting with the help of this network architecture, the products of a session are fed into the network in the correct order and the hidden state of the GRUs is reset after a session ends.
 
-## Results
+## Final Model Parameter Tuning
 
-
-We train the GRU4REC model with the below hyperparameters -
+We tried various combinations of hyperparameter values and obtained optimal results using the following hyperparameters -
 
 | Hyperparameter        | Value    |
 |-----------------------|----------|
@@ -66,13 +85,21 @@ We train the GRU4REC model with the below hyperparameters -
 | Learning Rate         | 0.06     |
 | Constrained Embedding | True     |
 
+## Results
 
 We test our model on multiple metrics 
 
-| Metrics    | @10    | @20    |
-|------------|--------|--------|
-| MRR        | 0.3282 | 0.3329 |
-| MAP        | 0.3104 | 0.3209 |
-| Hit Rate   | 0.5057 | 0.5726 |
-| Coverage   | 0.6242 | 0.7939 |
-| Popularity | 0.0353 | 0.0320 |
+| Metrics       | Our model | Benchmark Model |
+|---------------|-----------|-----------------|
+| MRR@20        | 0.332     | 0.243           |
+| Hit Rate@20   | 0.573     | 0.480           |
+| Coverage@20   | 0.794     | 0.602           |
+| Popularity@20 | 0.032     | 0.060           |
+
+• We reported four metrics computed from the top 20 recommended products.
+• We reported the average of the metrics for all 5 slices.
+• MRR (Mean Reciprocal Rank): Evaluates to what extent can the immediate next product in a session be predicted.
+
+## Conclusion
+* We found a combination of optimal hyperparameter values that maximized our model's performance thereby improving the results found in Ludewig and Jannach’s research paper 
+* This model can be utilized by Neiman Marcus along with their existing recommender models to improve personalization and product recommendations for unregistered users.
