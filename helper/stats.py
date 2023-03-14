@@ -4,6 +4,11 @@ from helper.node import PatternNode
 import time
 
 def get_stats( dataframe, name='test' ):
+
+    """
+    Get statistics of dataframe
+    """
+
     print( 'get_stats ',name )
     
     res = {}
@@ -22,9 +27,9 @@ def get_stats( dataframe, name='test' ):
 
     res['actions_per_session'] = res['actions'] / res['sessions']
     res['actions_per_items'] = res['actions'] / res['items']
-    #res['sessions_per_action'] = res['sessions'] / res['actions']
+#     res['sessions_per_action'] = res['sessions'] / res['actions']
     res['sessions_per_items'] = res['sessions'] / res['items']
-    #res['items_per_actions'] = res['items'] / res['actions']
+#     res['items_per_actions'] = res['items'] / res['actions']
     res['items_per_session'] = res['items'] / res['sessions']
     res['span'] = res['time_end'] - res['time_start']
     res['days'] = res['span'] / 1000 / 60 / 60 / 24
@@ -32,16 +37,20 @@ def get_stats( dataframe, name='test' ):
     return res
 
 def sequential_indicators( train, name='test' ):
+
+    """
+    Get sequential indicators
+    """
     
     print( 'sequential_indicators ',name )
     
     train['ItemIdNext'] = train['ItemId'].shift(-1).where(train['SessionId'].shift(-1) == train['SessionId'], np.nan)
-    #train['ItemIdNext2'] = train['ItemId'].shift(-2).where(train['SessionId'].shift(-2) == train['SessionId'], np.nan)
+#     train['ItemIdNext2'] = train['ItemId'].shift(-2).where(train['SessionId'].shift(-2) == train['SessionId'], np.nan)
 
     sequences = pd.DataFrame()
     sequences['count'] = train.dropna(axis=0, how='any').groupby( ['ItemId','ItemIdNext'] ).size()
-    #sequences = sequences[ sequences['count'] > 1 ]
-    #sequences = sequences[sequences['count'] > 1]
+#     sequences = sequences[ sequences['count'] > 1 ]
+#     sequences = sequences[sequences['count'] > 1]
 
     sequences['bin20'] = pd.cut(sequences['count'], 20, labels=range(1,21))
     
@@ -101,23 +110,23 @@ def sequential_indicators( train, name='test' ):
     res['seq_sum_seqtrain'] = res['seq_sum'] / ( res['seq'] / len( train ) )
     res['seq_sumsq_seqtrain'] = res['seq_sum_sq'] / ( res['seq'] / len( train ) )
     res['seq_sumbin_seqtrain'] = res['seq_sum_bin'] / ( res['seq'] / len( train ) )
-    res['seq_sum_tupel'] = res['seq_sum'] / res['seq']
+    res['seq_sum_tuple'] = res['seq_sum'] / res['seq']
     res['seq_sum_train'] = res['seq_sum'] / len( train )
     res['seq_sum_items'] = res['seq_sum'] / train.ItemId.nunique() 
     res['seq_sum_session'] = res['seq_sum'] / train.SessionId.nunique()
     
     res['seq_sum2_seqtrain'] = res['seq_sum2'] / ( res['seq'] / len( train ) )
-    res['seq_sum2_tupel'] = res['seq_sum2'] / res['seq']
+    res['seq_sum2_tuple'] = res['seq_sum2'] / res['seq']
     res['seq_sum2_train'] = res['seq_sum2'] / len( train )
     res['seq_sum2_items'] = res['seq_sum2'] / train.ItemId.nunique() 
     res['seq_sum2_session'] = res['seq_sum2'] / train.SessionId.nunique()
     
-    res['seq_count_mean_tupel'] = res['seq_count_mean'] / res['seq']
+    res['seq_count_mean_tuple'] = res['seq_count_mean'] / res['seq']
     res['seq_count_mean_train'] = res['seq_count_mean'] / len( train )
     res['seq_count_mean_items'] = res['seq_count_mean'] / train.ItemId.nunique() 
     res['seq_count_mean_session'] = res['seq_count_mean'] / train.SessionId.nunique()
     
-    res['seq_count_max_tupel'] = res['seq_count_max'] / res['seq']
+    res['seq_count_max_tuple'] = res['seq_count_max'] / res['seq']
     res['seq_count_max_train'] = res['seq_count_max'] / len( train )
     res['seq_count_max_items'] = res['seq_count_max'] / train.ItemId.nunique() 
     res['seq_count_max_session'] = res['seq_count_max'] / train.SessionId.nunique()
@@ -125,6 +134,10 @@ def sequential_indicators( train, name='test' ):
     return res
 
 def tree_indicators(train, name='test'):
+    
+    """
+    Get tree indicators
+    """
     
     print( 'tree_indicators ',name )
     print( 'max session:', ( train.groupby('SessionId').size().max() ) )
