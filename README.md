@@ -48,7 +48,7 @@ conda env create -f environment.yml
 ## Run instructions
 1. Preprocess data for RetailRocket
    1. Discard products with less than 6 occurrences
-   2. Discard sessions with less than 3 products
+   2. Discard sessions with less than 2 products
    3. Divide user-activity into sessions based on a 30-minute threshold of inactivity
    4. Split data into 5 slices of training and testing sets for each 5-month period. 
    5. For each slice:
